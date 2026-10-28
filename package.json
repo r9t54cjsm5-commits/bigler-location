@@ -1,0 +1,16 @@
+{
+  "name": "bigler-location",
+  "version": "1.0.0",
+  "description": "Bigler Location - Tesla Rental Site with backend + Stripe + Emails",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "nodemailer": "^6.10.1",
+    "stripe": "^16.12.0"
+  }
+}

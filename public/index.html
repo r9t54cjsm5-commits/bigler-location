@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bigler Location — Location Tesla Suisse</title>
+<style>
+:root {
+  --bg: #0a0a0a;
+  --card: #161616;
+  --accent: #c41e3a;
+  --accent-light: #e63946;
+  --text: #f0f0f0;
+  --muted: #999;
+  --success: #27ae60;
+  --error: #e74c3c;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+header { background: #111; padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+header img { height: 70px; }
+nav a { color: var(--text); text-decoration: none; margin-left: 1.8rem; font-weight: 500; font-size: 1.05rem; }
+nav a:hover { color: var(--accent); }
+.hero { position: relative; height: 70vh; min-height: 500px; background: url('/images/model-y-sunset.jpg') center/cover no-repeat; display: flex; align-items: center; justify-content: center; }
+.hero::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.7)); }
+.hero-content { position: relative; text-align: center; z-index: 2; padding: 2rem; }
+.hero h1 { font-size: 3.5rem; margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
+.hero p { font-size: 1.3rem; max-width: 700px; margin: 0 auto 1.5rem; color: #eee; }
+.btn { display: inline-block; background: var(--accent); color: white; padding: 0.9rem 2rem; border-radius: 8px; text-decoration: none; font-weight: bold; border: none; cursor: pointer; font-size: 1.05rem; }
+.btn:hover { background: var(--accent-light); }
+.container { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem; }
+h2 { text-align: center; margin-bottom: 2.5rem; font-size: 2.2rem; color: #fff; }
+.fleet { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+.car-card { background: var(--card); border-radius: 16px; overflow: hidden; border: 1px solid #222; transition: transform 0.3s, box-shadow 0.3s; }
+.car-card:hover { transform: translateY(-8px); box-shadow: 0 10px 30px rgba(196,30,58,0.2); }
+.car-card img { width: 100%; height: 200px; object-fit: cover; }
+.car-info { padding: 1.5rem; }
+.car-info h3 { font-size: 1.3rem; margin-bottom: 0.4rem; }
+.price { color: var(--accent); font-weight: bold; font-size: 1.4rem; }
+.specs { color: var(--muted); font-size: 0.95rem; margin: 0.6rem 0; }
+.booking-section { background: #111; padding: 3rem 1.5rem; margin-top: 2rem; border-radius: 16px; }
+form { display: grid; gap: 1.2rem; max-width: 650px; margin: 0 auto; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+label { font-weight: 600; display: block; margin-bottom: 0.3rem; }
+input, select { width: 100%; padding: 0.9rem; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: var(--text); font-size: 1rem; }
+.options { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+.options label { display: flex; align-items: center; gap: 0.5rem; font-weight: normal; }
+#price-display { background: #1a1a1a; padding: 1.2rem; border-radius: 8px; text-align: center; font-size: 1.5rem; border: 1px solid #333; }
+#availability { margin: 0.5rem 0; font-weight: bold; text-align: center; }
+.available { color: var(--success); }
+.unavailable { color: var(--error); }
+#bookings-list { margin-top: 3rem; }
+.booking-item { background: #1a1a1a; padding: 1.2rem; margin: 0.8rem 0; border-radius: 10px; border-left: 4px solid var(--accent); }
+.admin-actions { margin-top: 1rem; text-align: center; }
+footer { text-align: center; padding: 2.5rem; color: var(--muted); border-top: 1px solid #222; margin-top: 2rem; }
+@media (max-width: 700px) {
+  .hero h1 { font-size: 2.2rem; }
+  .form-row { grid-template-columns: 1fr; }
+  header { flex-direction: column; padding: 1rem; }
+  nav { margin-top: 0.5rem; }
+}
+</style>
+</head>
+<body>
+<header>
+  <img src="/images/logo.jpg" alt="Bigler Location">
+  <nav>
+    <a href="#flotte">Flotte</a>
+    <a href="#reserver">Réserver</a>
+    <a href="#reservations">Réservations</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-content">
+    <h1>Bigler Location</h1>
+    <p>Location de Tesla premium en Suisse romande. Réservation en ligne sécurisée, système anti-doublons, prix calculé en temps réel.</p>
+    <a href="#reserver" class="btn">Réserver maintenant</a>
+  </div>
+</section>
+
+<div class="container">
+  <h2 id="flotte">Notre flotte Tesla</h2>
+  <div class="fleet" id="fleet"></div>
+
+  <div class="booking-section" id="reserver">
+    <h2>Réserver votre Tesla</h2>
+    <form id="booking-form">
+      <div>
+        <label for="car">Véhicule</label>
+        <select id="car" required></select>
+      </div>
+      <div class="form-row">
+        <div>
+          <label for="start">Date de début</label>
+          <input type="date" id="start" required>
+        </div>
+        <div>
+          <label for="end">Date de fin</label>
+          <input type="date" id="end" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label for="name">Nom complet</label>
+          <input type="text" id="name" placeholder="Votre nom" required>
+        </div>
+        <div>
+          <label for="phone">Téléphone</label>
+          <input type="tel" id="phone" placeholder="+41 XX XXX XX XX" required>
+        </div>
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="email@exemple.ch" required>
+      </div>
+      <div class="options">
+        <label><input type="checkbox" id="insurance"> Assurance tous risques (+25 CHF/jour)</label>
+        <label><input type="checkbox" id="delivery"> Livraison à domicile (+80 CHF)</label>
+      </div>
+      <div id="price-display">Prix total : -- CHF</div>
+      <div id="availability"></div>
+      <button type="submit" class="btn" style="width:100%;">Confirmer la réservation</button>
+    </form>
+  </div>
+
+  <div id="bookings-list">
+    <h2 id="reservations">Réservations actuelles</h2>
+    <div id="bookings-container"></div>
+    <div class="admin-actions">
+      <button class="btn" id="refresh-bookings" style="background:#333;">Actualiser</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p><strong>Bigler Location</strong> — Genève • Lausanne • Vaud</p>
+  <p>Contact : info@biglerlocation.ch | +41 79 XXX XX XX</p>
+  <p>Prix indicatifs. Km illimités en Suisse. Caution demandée. Assurance de base incluse.</p>
+</footer>
+
+<script>
+const API = '';
+
+async function loadCars() {
+  const res = await fetch('/api/cars');
+  const cars = await res.json();
+  const fleet = document.getElementById('fleet');
+  const select = document.getElementById('car');
+  fleet.innerHTML = cars.map(c => `
+    <div class="car-card">
+      <img src="${c.image}" alt="${c.name}">
+      <div class="car-info">
+        <h3>${c.name}</h3>
+        <p class="specs">${c.specs}</p>
+        <p class="price">${c.price} CHF / jour</p>
+      </div>
+    </div>
+  `).join('');
+  select.innerHTML = cars.map(c => `<option value="${c.id}">${c.name} — ${c.price} CHF/j</option>`).join('');
+  return cars;
+}
+
+async function updatePriceAndAvailability() {
+  const carId = document.getElementById('car').value;
+  const start = document.getElementById('start').value;
+  const end = document.getElementById('end').value;
+  const insurance = document.getElementById('insurance').checked;
+  const delivery = document.getElementById('delivery').checked;
+  const availEl = document.getElementById('availability');
+  const priceEl = document.getElementById('price-display');
+
+  if (!carId || !start || !end) {
+    priceEl.textContent = 'Prix total : -- CHF';
+    availEl.textContent = '';
+    return;
+  }
+
+  const params = new URLSearchParams({ carId, start, end });
+  const res = await fetch(`/api/availability?${params}`);
+  const data = await res.json();
+
+  let total = data.price || 0;
+  if (insurance) total += (data.days || 1) * 25;
+  if (delivery) total += 80;
+
+  priceEl.textContent = `Prix total : ${total} CHF (${data.days || 1} jour${data.days > 1 ? 's' : ''})`;
+
+  if (data.available) {
+    availEl.textContent = '✅ Disponible pour ces dates';
+    availEl.className = 'available';
+  } else {
+    availEl.textContent = '❌ Déjà réservé — choisissez d\'autres dates';
+    availEl.className = 'unavailable';
+  }
+}
+
+async function loadBookings() {
+  const res = await fetch('/api/bookings');
+  const bookings = await res.json();
+  const container = document.getElementById('bookings-container');
+  if (!bookings.length) {
+    container.innerHTML = '<p style="text-align:center;color:#aaa;">Aucune réservation pour le moment.</p>';
+    return;
+  }
+  container.innerHTML = bookings.map(b => `
+    <div class="booking-item">
+      <strong>${b.carName}</strong><br>
+      ${b.start} → ${b.end} • ${b.name} • ${b.email}<br>
+      Prix: ${b.price} CHF • Statut: ${b.status}
+      <div style="margin-top:0.5rem;">
+        <button onclick="deleteBooking('${b.id}')" style="background:#444;color:white;border:none;padding:0.4rem 0.8rem;border-radius:4px;cursor:pointer;">Annuler</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function deleteBooking(id) {
+  if (!confirm('Annuler cette réservation ?')) return;
+  await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
+  loadBookings();
+  updatePriceAndAvailability();
+}
+
+document.getElementById('car').addEventListener('change', updatePriceAndAvailability);
+document.getElementById('start').addEventListener('change', updatePriceAndAvailability);
+document.getElementById('end').addEventListener('change', updatePriceAndAvailability);
+document.getElementById('insurance').addEventListener('change', updatePriceAndAvailability);
+document.getElementById('delivery').addEventListener('change', updatePriceAndAvailability);
+
+document.getElementById('booking-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const payload = {
+    carId: document.getElementById('car').value,
+    start: document.getElementById('start').value,
+    end: document.getElementById('end').value,
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
+    options: {
+      insurance: document.getElementById('insurance').checked,
+      delivery: document.getElementById('delivery').checked
+    }
+  };
+
+  const availRes = await fetch(`/api/availability?carId=${payload.carId}&start=${payload.start}&end=${payload.end}`);
+  const avail = await availRes.json();
+  if (!avail.available) {
+    alert('Ce véhicule n\'est plus disponible pour ces dates.');
+    return;
+  }
+
+  const res = await fetch('/api/create-checkout-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (res.ok && data.url) {
+    window.location.href = data.url; // Redirection vers Stripe
+  } else {
+    alert(data.error || 'Erreur lors de la création du paiement');
+  }
+});
+
+document.getElementById('refresh-bookings').addEventListener('click', loadBookings);
+
+// Min date
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('start').min = today;
+document.getElementById('end').min = today;
+
+// Init
+loadCars().then(() => {
+  loadBookings();
+  updatePriceAndAvailability();
+});
+</script>
+</body>
+</html>

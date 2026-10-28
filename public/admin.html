@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Bigler Location</title>
+<style>
+body { font-family: system-ui, sans-serif; background: #0a0a0a; color: #f0f0f0; margin: 0; padding: 2rem; }
+h1 { text-align: center; }
+.container { max-width: 1000px; margin: 0 auto; }
+table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #333; }
+th { background: #161616; }
+.status-payée { color: #27ae60; }
+.status-annulée { color: #e74c3c; }
+button { background: #c41e3a; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+button.secondary { background: #444; }
+a { color: #c41e3a; }
+#login-form { max-width: 400px; margin: 3rem auto; background: #161616; padding: 2rem; border-radius: 12px; }
+#login-form input { width: 100%; padding: 0.8rem; margin: 0.5rem 0 1rem; border-radius: 6px; border: 1px solid #333; background: #222; color: white; }
+.error { color: #e74c3c; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Administration — Réservations</h1>
+  <p style="text-align:center;"><a href="/">← Retour au site</a></p>
+  
+  <div id="login-form" style="display:none;">
+    <h2 style="text-align:center;">Connexion admin</h2>
+    <input type="password" id="password" placeholder="Mot de passe">
+    <button onclick="login()" style="width:100%;">Se connecter</button>
+    <p id="login-error" class="error"></p>
+  </div>
+
+  <div id="admin-content" style="display:none;">
+    <p style="text-align:center;"><button class="secondary" onclick="logout()">Déconnexion</button></p>
+    <div id="bookings"></div>
+  </div>
+</div>
+<script>
+async function checkAuth() {
+  const res = await fetch('/admin/check');
+  const data = await res.json();
+  if (data.authenticated) {
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('admin-content').style.display = 'block';
+    loadBookings();
+  } else {
+    document.getElementById('login-form').style.display = 'block';
+    document.getElementById('admin-content').style.display = 'none';
+  }
+}
+
+async function login() {
+  const password = document.getElementById('password').value;
+  const res = await fetch('/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password })
+  });
+  const data = await res.json();
+  if (data.success) {
+    checkAuth();
+  } else {
+    document.getElementById('login-error').textContent = data.error || 'Erreur';
+  }
+}
+
+async function logout() {
+  await fetch('/admin/logout', { method: 'POST' });
+  checkAuth();
+}
+
+async function loadBookings() {
+  const res = await fetch('/api/bookings');
+  if (res.status === 401) return checkAuth();
+  const bookings = await res.json();
+  const el = document.getElementById('bookings');
+  if (!bookings.length) {
+    el.innerHTML = '<p style="text-align:center;color:#aaa;">Aucune réservation.</p>';
+    return;
+  }
+  el.innerHTML = `
+    <table>
+      <tr><th>Véhicule</th><th>Dates</th><th>Client</th><th>Prix</th><th>Statut</th><th>Actions</th></tr>
+      ${bookings.map(b => `
+        <tr>
+          <td>${b.carName}</td>
+          <td>${b.start} → ${b.end}</td>
+          <td>${b.name}<br><small>${b.email}</small></td>
+          <td>${b.price} CHF</td>
+          <td class="status-${b.status}">${b.status}</td>
+          <td>${b.status !== 'annulée' ? `<button onclick="cancel('${b.id}')">Annuler</button>` : '-'}</td>
+        </tr>
+      `).join('')}
+    </table>
+  `;
+}
+
+async function cancel(id) {
+  if (!confirm('Annuler cette réservation ?')) return;
+  const res = await fetch('/api/bookings/' + id, { method: 'DELETE' });
+  if (res.ok) loadBookings();
+  else alert('Erreur');
+}
+
+checkAuth();
+</script>
+</body>
+</html>

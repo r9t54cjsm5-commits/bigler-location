@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paiement réussi — Bigler Location</title>
+<style>
+body { font-family: system-ui, sans-serif; background: #0a0a0a; color: #f0f0f0; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+.box { background: #161616; padding: 3rem; border-radius: 16px; text-align: center; max-width: 500px; border: 1px solid #333; }
+h1 { color: #27ae60; }
+a { color: #c41e3a; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Paiement réussi !</h1>
+  <p id="msg">Confirmation de votre réservation en cours...</p>
+  <p><a href="/">Retour à l'accueil</a> • <a href="/admin">Admin</a></p>
+</div>
+<script>
+const params = new URLSearchParams(window.location.search);
+const sessionId = params.get('session_id');
+if (sessionId) {
+  fetch('/api/confirm-booking', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionId })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.error) {
+      document.getElementById('msg').innerHTML = '<span style="color:#e74c3c">' + data.error + '</span>';
+    } else {
+      document.getElementById('msg').innerHTML = `
+        <strong>${data.carName}</strong><br>
+        Du ${data.start} au ${data.end}<br>
+        Total payé : ${data.price} CHF<br>
+        Statut : ${data.status}
+      `;
+    }
+  })
+  .catch(() => {
+    document.getElementById('msg').textContent = 'Erreur de confirmation. Contactez-nous.';
+  });
+}
+</script>
+</body>
+</html>
